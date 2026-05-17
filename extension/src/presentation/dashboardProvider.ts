@@ -1,9 +1,10 @@
 import * as crypto from "node:crypto";
-import type * as vscode from "vscode";
+import * as vscode from "vscode";
 
 import type { ChatMessage, DashboardState } from "../domain/chat";
 import type { CreateTodoInput, Todo, TodoStatus } from "../domain/todos";
 import type { BackendClient } from "../infrastructure/backendClient";
+import type { AzureDevOpsService } from "../services/azureDevOpsService";
 import type { TodoService } from "../services/todoService";
 import { renderDashboardHtml } from "./dashboardHtml";
 
@@ -60,6 +61,7 @@ export class AssistantDashboardProvider implements vscode.WebviewViewProvider {
     private readonly extensionUri: vscode.Uri,
     private readonly backendClient: BackendClient,
     private readonly todoService: TodoService,
+    private readonly azureDevOpsService: AzureDevOpsService,
   ) {}
 
   public resolveWebviewView(webviewView: vscode.WebviewView): void {
@@ -76,10 +78,97 @@ export class AssistantDashboardProvider implements vscode.WebviewViewProvider {
   }
 
   public async planMyDay(): Promise<void> {
+    await this.loadTodos();
     await this.appendUserMessage("Plan my day");
+    const urgent = this.state.todos.items.filter((todo) => todo.category === "urgent");
+    const blocked = this.state.todos.items.filter((todo) => todo.category === "blocked");
+    const dueSoon = this.state.todos.items.filter((todo) => todo.category === "due_soon");
     await this.appendAssistantMessage(
-      "Planning workflows are not implemented yet. This command is wired for future local backend orchestration.",
+      `Local plan: ${urgent.length} urgent, ${blocked.length} blocked, ${dueSoon.length} due soon.`,
     );
+  }
+
+  public async syncDevOpsTickets(): Promise<void> {
+    this.state = {
+      ...this.state,
+      todos: {
+        ...this.state.todos,
+        isLoading: true,
+        error: undefined,
+      },
+    };
+    await this.postState();
+
+    const result = await this.azureDevOpsService.syncTickets();
+    if (!result.ok) {
+      this.state = {
+        ...this.state,
+        todos: {
+          ...this.state.todos,
+          isLoading: false,
+          error: result.error ?? "Unable to sync Azure DevOps tickets",
+        },
+      };
+      await this.postState();
+      return;
+    }
+
+    await this.loadTodos();
+    await this.appendAssistantMessage(
+      `Synced ${result.data?.synced_count ?? 0} Azure DevOps ticket(s).`,
+    );
+  }
+
+  public async updateCurrentTicket(): Promise<void> {
+    const linkedTodos = this.state.todos.items.filter(
+      (todo) => todo.external_provider === "azure_devops" && todo.external_id,
+    );
+    if (linkedTodos.length === 0) {
+      await this.loadTodos();
+    }
+
+    const refreshedLinkedTodos = this.state.todos.items.filter(
+      (todo) => todo.external_provider === "azure_devops" && todo.external_id,
+    );
+    const selected = await vscode.window.showQuickPick(
+      refreshedLinkedTodos.map((todo) => ({
+        label: `${todo.external_id}: ${todo.title}`,
+        description: todo.status,
+        todo,
+      })),
+      {
+        placeHolder: "Select an Azure DevOps-linked todo",
+      },
+    );
+    if (!selected?.todo.external_id) {
+      return;
+    }
+
+    const state = await vscode.window.showQuickPick(["New", "Active", "Resolved", "Closed"], {
+      placeHolder: "Select Azure DevOps ticket state",
+    });
+    if (!state) {
+      return;
+    }
+
+    const result = await this.azureDevOpsService.updateTicketProgress(
+      selected.todo.external_id,
+      state,
+    );
+    if (!result.ok) {
+      this.state = {
+        ...this.state,
+        todos: {
+          ...this.state.todos,
+          error: result.error ?? "Unable to update Azure DevOps ticket",
+        },
+      };
+      await this.postState();
+      return;
+    }
+
+    await this.updateTodoStatus(selected.todo.id, mapAzureStateToTodoStatus(state));
+    await this.appendAssistantMessage(`Updated Azure DevOps ticket ${selected.todo.external_id}.`);
   }
 
   private async handleMessage(message: WebviewInboundMessage): Promise<void> {
@@ -283,4 +372,15 @@ function createNonce(): string {
 
 function replaceTodo(todos: readonly Todo[], updatedTodo: Todo): readonly Todo[] {
   return todos.map((todo) => (todo.id === updatedTodo.id ? updatedTodo : todo));
+}
+
+function mapAzureStateToTodoStatus(state: string): TodoStatus {
+  const normalized = state.toLowerCase();
+  if (normalized === "active") {
+    return "in_progress";
+  }
+  if (normalized === "resolved" || normalized === "closed") {
+    return "done";
+  }
+  return "pending";
 }

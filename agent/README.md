@@ -19,6 +19,8 @@ No AI behavior is implemented yet.
 - `GET /todos`
 - `POST /todos`
 - `PATCH /todos/{id}`
+- `POST /integrations/azure-devops/sync`
+- `POST /integrations/azure-devops/update-progress`
 - `POST /api/v1/chat/turn` placeholder used by the VS Code extension shell
 
 ## Local Startup
@@ -48,6 +50,12 @@ The default SQLite database path is `.local/ai-work-assistant.sqlite3`. Override
 ```bash
 AI_WORK_ASSISTANT_SQLITE_PATH=/path/to/local.sqlite3
 ```
+
+## Azure DevOps
+
+Azure DevOps integration uses a provider abstraction under `integrations/`. The current provider supports Personal Access Token authentication. PATs must be supplied per request in the `X-Azure-DevOps-PAT` header and are not persisted by the backend.
+
+The integration does not hardcode organization or project names. The caller must provide both values.
 
 ## Tests
 

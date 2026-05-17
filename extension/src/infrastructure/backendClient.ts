@@ -1,5 +1,24 @@
 import type { CreateTodoInput, PatchTodoInput, Todo } from "../domain/todos";
 
+export interface AzureDevOpsConfig {
+  readonly organization: string;
+  readonly project: string;
+}
+
+export interface AzureDevOpsSyncResponse {
+  readonly synced_count: number;
+  readonly todos: readonly Todo[];
+}
+
+export interface AzureDevOpsUpdateRequest extends AzureDevOpsConfig {
+  readonly work_item_id: string;
+  readonly state: string;
+}
+
+export interface AzureDevOpsUpdateResponse {
+  readonly updated: boolean;
+}
+
 export interface HealthResponse {
   readonly status?: string;
   readonly version?: string;
@@ -62,6 +81,28 @@ export class BackendClient {
     });
   }
 
+  public async syncAzureDevOpsTickets(
+    config: AzureDevOpsConfig,
+    pat: string,
+  ): Promise<BackendClientResult<AzureDevOpsSyncResponse>> {
+    return this.postJson<AzureDevOpsConfig, AzureDevOpsSyncResponse>(
+      "/integrations/azure-devops/sync",
+      config,
+      azureDevOpsAuthHeaders(pat),
+    );
+  }
+
+  public async updateAzureDevOpsTicket(
+    input: AzureDevOpsUpdateRequest,
+    pat: string,
+  ): Promise<BackendClientResult<AzureDevOpsUpdateResponse>> {
+    return this.postJson<AzureDevOpsUpdateRequest, AzureDevOpsUpdateResponse>(
+      "/integrations/azure-devops/update-progress",
+      input,
+      azureDevOpsAuthHeaders(pat),
+    );
+  }
+
   private async getJson<TResponse>(path: string): Promise<BackendClientResult<TResponse>> {
     return this.requestJson<TResponse>(path, {
       method: "GET",
@@ -71,11 +112,13 @@ export class BackendClient {
   private async postJson<TRequest, TResponse>(
     path: string,
     body: TRequest,
+    headers: Record<string, string> = {},
   ): Promise<BackendClientResult<TResponse>> {
     return this.requestJson<TResponse>(path, {
       method: "POST",
       headers: {
         "content-type": "application/json",
+        ...headers,
       },
       body: JSON.stringify(body),
     });
@@ -127,6 +170,12 @@ export class BackendClient {
       error: lastError,
     };
   }
+}
+
+function azureDevOpsAuthHeaders(pat: string): Record<string, string> {
+  return {
+    "X-Azure-DevOps-PAT": pat,
+  };
 }
 
 function ensureTrailingSlash(value: string): string {

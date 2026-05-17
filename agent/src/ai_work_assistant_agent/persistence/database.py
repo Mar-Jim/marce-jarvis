@@ -24,8 +24,45 @@ class Database:
                     status TEXT NOT NULL,
                     priority TEXT NOT NULL,
                     source TEXT NOT NULL,
+                    external_provider TEXT,
+                    external_id TEXT,
+                    external_url TEXT,
+                    category TEXT NOT NULL DEFAULT 'normal',
                     created_at TEXT NOT NULL,
-                    updated_at TEXT NOT NULL
+                    updated_at TEXT NOT NULL,
+                    UNIQUE(external_provider, external_id)
                 )
                 """
+            )
+            self._add_column_if_missing(connection, "todos", "external_provider", "TEXT")
+            self._add_column_if_missing(connection, "todos", "external_id", "TEXT")
+            self._add_column_if_missing(connection, "todos", "external_url", "TEXT")
+            self._add_column_if_missing(
+                connection,
+                "todos",
+                "category",
+                "TEXT NOT NULL DEFAULT 'normal'",
+            )
+            connection.execute(
+                """
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_todos_external_ref
+                ON todos(external_provider, external_id)
+                WHERE external_provider IS NOT NULL AND external_id IS NOT NULL
+                """
+            )
+
+    def _add_column_if_missing(
+        self,
+        connection: sqlite3.Connection,
+        table_name: str,
+        column_name: str,
+        column_definition: str,
+    ) -> None:
+        columns = {
+            row["name"]
+            for row in connection.execute(f"PRAGMA table_info({table_name})").fetchall()
+        }
+        if column_name not in columns:
+            connection.execute(
+                f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_definition}"
             )

@@ -13,3 +13,7 @@ def get_todo_service(request: Request) -> TodoService:
     database = get_database(request)
     repository = TodoRepository(database)
     return TodoService(repository)
+
+
+def get_todo_repository(request: Request) -> TodoRepository:
+    return TodoRepository(get_database(request))

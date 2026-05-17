@@ -8,6 +8,10 @@ export interface Todo {
   readonly status: TodoStatus;
   readonly priority: TodoPriority;
   readonly source: string;
+  readonly external_provider: string | null;
+  readonly external_id: string | null;
+  readonly external_url: string | null;
+  readonly category: "blocked" | "in_progress" | "urgent" | "due_soon" | "normal";
   readonly created_at: string;
   readonly updated_at: string;
 }

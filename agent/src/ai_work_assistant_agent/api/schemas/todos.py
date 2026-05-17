@@ -18,12 +18,24 @@ class TodoPriority(StrEnum):
     urgent = "urgent"
 
 
+class TodoCategory(StrEnum):
+    blocked = "blocked"
+    in_progress = "in_progress"
+    urgent = "urgent"
+    due_soon = "due_soon"
+    normal = "normal"
+
+
 class TodoBase(BaseModel):
     title: str = Field(min_length=1, max_length=200)
     description: str = Field(default="", max_length=4000)
     status: TodoStatus = TodoStatus.pending
     priority: TodoPriority = TodoPriority.medium
     source: str = Field(default="manual", min_length=1, max_length=100)
+    external_provider: str | None = Field(default=None, max_length=100)
+    external_id: str | None = Field(default=None, max_length=100)
+    external_url: str | None = Field(default=None, max_length=2000)
+    category: TodoCategory = TodoCategory.normal
 
 
 class TodoCreate(TodoBase):
@@ -36,6 +48,10 @@ class TodoPatch(BaseModel):
     status: TodoStatus | None = None
     priority: TodoPriority | None = None
     source: str | None = Field(default=None, min_length=1, max_length=100)
+    external_provider: str | None = Field(default=None, max_length=100)
+    external_id: str | None = Field(default=None, max_length=100)
+    external_url: str | None = Field(default=None, max_length=2000)
+    category: TodoCategory | None = None
 
 
 class TodoRead(TodoBase):

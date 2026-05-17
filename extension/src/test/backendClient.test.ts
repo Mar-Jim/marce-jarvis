@@ -63,6 +63,10 @@ describe("BackendClient", () => {
           status: "pending",
           priority: "medium",
           source: "vscode",
+          external_provider: null,
+          external_id: null,
+          external_url: null,
+          category: "normal",
           created_at: "2026-05-17T00:00:00Z",
           updated_at: "2026-05-17T00:00:00Z",
         },
@@ -88,6 +92,10 @@ describe("BackendClient", () => {
         status: "pending",
         priority: "high",
         source: "vscode",
+        external_provider: null,
+        external_id: null,
+        external_url: null,
+        category: "normal",
         created_at: "2026-05-17T00:00:00Z",
         updated_at: "2026-05-17T00:00:00Z",
       });
@@ -122,6 +130,10 @@ describe("BackendClient", () => {
         status: "done",
         priority: "medium",
         source: "vscode",
+        external_provider: "azure_devops",
+        external_id: "todo-1",
+        external_url: "https://example.test",
+        category: "in_progress",
         created_at: "2026-05-17T00:00:00Z",
         updated_at: "2026-05-17T00:01:00Z",
       });
@@ -135,6 +147,64 @@ describe("BackendClient", () => {
     assert.equal(requests[0]?.init?.method, "PATCH");
     assert.deepEqual(JSON.parse(requests[0]?.init?.body?.toString() ?? "{}"), {
       status: "done",
+    });
+  });
+
+  it("syncs Azure DevOps tickets with PAT header", async () => {
+    globalThis.fetch = async (input: string | URL | Request, init?: RequestInit) => {
+      requests.push({ url: input.toString(), init });
+      return jsonResponse({
+        synced_count: 1,
+        todos: [],
+      });
+    };
+    const client = new BackendClient(() => "http://127.0.0.1:8765");
+
+    const result = await client.syncAzureDevOpsTickets(
+      { organization: "org", project: "project" },
+      "secret-token",
+    );
+
+    assert.equal(result.ok, true);
+    assert.equal(
+      requests[0]?.url,
+      "http://127.0.0.1:8765/integrations/azure-devops/sync",
+    );
+    assert.equal(getHeader(requests[0]?.init?.headers, "X-Azure-DevOps-PAT"), "secret-token");
+    assert.deepEqual(JSON.parse(requests[0]?.init?.body?.toString() ?? "{}"), {
+      organization: "org",
+      project: "project",
+    });
+  });
+
+  it("updates Azure DevOps ticket progress with PAT header", async () => {
+    globalThis.fetch = async (input: string | URL | Request, init?: RequestInit) => {
+      requests.push({ url: input.toString(), init });
+      return jsonResponse({ updated: true });
+    };
+    const client = new BackendClient(() => "http://127.0.0.1:8765");
+
+    const result = await client.updateAzureDevOpsTicket(
+      {
+        organization: "org",
+        project: "project",
+        work_item_id: "123",
+        state: "Active",
+      },
+      "secret-token",
+    );
+
+    assert.equal(result.ok, true);
+    assert.equal(
+      requests[0]?.url,
+      "http://127.0.0.1:8765/integrations/azure-devops/update-progress",
+    );
+    assert.equal(getHeader(requests[0]?.init?.headers, "X-Azure-DevOps-PAT"), "secret-token");
+    assert.deepEqual(JSON.parse(requests[0]?.init?.body?.toString() ?? "{}"), {
+      organization: "org",
+      project: "project",
+      work_item_id: "123",
+      state: "Active",
     });
   });
 
@@ -164,4 +234,17 @@ function jsonResponse(body: unknown, status = 200): Response {
       "content-type": "application/json",
     },
   });
+}
+
+function getHeader(headers: HeadersInit | undefined, name: string): string | undefined {
+  if (!headers) {
+    return undefined;
+  }
+  if (headers instanceof Headers) {
+    return headers.get(name) ?? undefined;
+  }
+  if (Array.isArray(headers)) {
+    return headers.find(([key]) => key.toLowerCase() === name.toLowerCase())?.[1];
+  }
+  return headers[name];
 }

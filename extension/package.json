@@ -19,6 +19,8 @@
   "activationEvents": [
     "onView:aiWorkAssistant.dashboard",
     "onCommand:assistant.openDashboard",
+    "onCommand:assistant.syncDevOpsTickets",
+    "onCommand:assistant.updateCurrentTicket",
     "onCommand:assistant.planMyDay"
   ],
   "contributes": {
@@ -26,6 +28,16 @@
       {
         "command": "assistant.openDashboard",
         "title": "Open Dashboard",
+        "category": "Assistant"
+      },
+      {
+        "command": "assistant.syncDevOpsTickets",
+        "title": "Sync DevOps Tickets",
+        "category": "Assistant"
+      },
+      {
+        "command": "assistant.updateCurrentTicket",
+        "title": "Update Current Ticket",
         "category": "Assistant"
       },
       {
@@ -59,6 +71,16 @@
           "type": "string",
           "default": "http://127.0.0.1:8765",
           "description": "Local AI Work Assistant backend URL."
+        },
+        "aiWorkAssistant.azureDevOps.organization": {
+          "type": "string",
+          "default": "",
+          "description": "Azure DevOps organization name. Do not include the dev.azure.com URL."
+        },
+        "aiWorkAssistant.azureDevOps.project": {
+          "type": "string",
+          "default": "",
+          "description": "Azure DevOps project name."
         }
       }
     }

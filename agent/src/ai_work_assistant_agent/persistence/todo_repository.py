@@ -2,7 +2,7 @@ import sqlite3
 from collections.abc import Mapping
 from datetime import datetime
 
-from ai_work_assistant_agent.api.schemas.todos import TodoPriority, TodoStatus
+from ai_work_assistant_agent.api.schemas.todos import TodoCategory, TodoPriority, TodoStatus
 from ai_work_assistant_agent.domain.todos import Todo
 from ai_work_assistant_agent.persistence.database import Database
 
@@ -15,7 +15,9 @@ class TodoRepository:
         with self.database.connect() as connection:
             rows = connection.execute(
                 """
-                SELECT id, title, description, status, priority, source, created_at, updated_at
+                SELECT id, title, description, status, priority, source,
+                       external_provider, external_id, external_url, category,
+                       created_at, updated_at
                 FROM todos
                 ORDER BY created_at DESC
                 """
@@ -27,9 +29,11 @@ class TodoRepository:
             connection.execute(
                 """
                 INSERT INTO todos (
-                    id, title, description, status, priority, source, created_at, updated_at
+                    id, title, description, status, priority, source,
+                    external_provider, external_id, external_url, category,
+                    created_at, updated_at
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     todo.id,
@@ -38,6 +42,10 @@ class TodoRepository:
                     todo.status.value,
                     todo.priority.value,
                     todo.source,
+                    todo.external_provider,
+                    todo.external_id,
+                    todo.external_url,
+                    todo.category.value,
                     todo.created_at.isoformat(),
                     todo.updated_at.isoformat(),
                 ),
@@ -48,13 +56,62 @@ class TodoRepository:
         with self.database.connect() as connection:
             row = connection.execute(
                 """
-                SELECT id, title, description, status, priority, source, created_at, updated_at
+                SELECT id, title, description, status, priority, source,
+                       external_provider, external_id, external_url, category,
+                       created_at, updated_at
                 FROM todos
                 WHERE id = ?
                 """,
                 (todo_id,),
             ).fetchone()
         return todo_from_row(row) if row is not None else None
+
+    def upsert_external(self, todo: Todo) -> Todo:
+        if todo.external_provider is None or todo.external_id is None:
+            raise ValueError("External todos require provider and id")
+
+        with self.database.connect() as connection:
+            row = connection.execute(
+                """
+                SELECT id, created_at
+                FROM todos
+                WHERE external_provider = ? AND external_id = ?
+                """,
+                (todo.external_provider, todo.external_id),
+            ).fetchone()
+
+            if row is None:
+                return self.create(todo)
+
+            connection.execute(
+                """
+                UPDATE todos
+                SET title = ?,
+                    description = ?,
+                    status = ?,
+                    priority = ?,
+                    source = ?,
+                    external_url = ?,
+                    category = ?,
+                    updated_at = ?
+                WHERE id = ?
+                """,
+                (
+                    todo.title,
+                    todo.description,
+                    todo.status.value,
+                    todo.priority.value,
+                    todo.source,
+                    todo.external_url,
+                    todo.category.value,
+                    todo.updated_at.isoformat(),
+                    row["id"],
+                ),
+            )
+            updated = self.get(row["id"])
+            if updated is None:
+                raise RuntimeError("Updated todo could not be read")
+            return updated
 
     def patch(self, todo_id: str, values: Mapping[str, object]) -> Todo | None:
         if not values:
@@ -87,6 +144,10 @@ def todo_from_row(row: sqlite3.Row) -> Todo:
         status=TodoStatus(row["status"]),
         priority=TodoPriority(row["priority"]),
         source=row["source"],
+        external_provider=row["external_provider"],
+        external_id=row["external_id"],
+        external_url=row["external_url"],
+        category=TodoCategory(row["category"]),
         created_at=datetime.fromisoformat(row["created_at"]),
         updated_at=datetime.fromisoformat(row["updated_at"]),
     )

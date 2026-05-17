@@ -18,10 +18,17 @@ Assistant behavior and tool execution should live in the Python agent, not in th
 - Sidebar webview: `AI Work Assistant`
 - Command palette:
   - `Assistant: Open Dashboard`
+  - `Assistant: Sync DevOps Tickets`
+  - `Assistant: Update Current Ticket`
   - `Assistant: Plan My Day`
 - Local backend setting: `aiWorkAssistant.backendUrl`
+- Azure DevOps settings:
+  - `aiWorkAssistant.azureDevOps.organization`
+  - `aiWorkAssistant.azureDevOps.project`
 
 The chat UI is intentionally non-AI for now. It sends typed REST requests to the configured localhost backend and shows placeholder responses until backend orchestration exists.
+
+Azure DevOps authentication uses a Personal Access Token stored in VS Code SecretStorage. The token is sent only to the local backend for the active request and is not stored in SQLite.
 
 ## Development
 

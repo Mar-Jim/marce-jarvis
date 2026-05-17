@@ -25,6 +25,10 @@ class TodoService:
             status=payload.status,
             priority=payload.priority,
             source=payload.source,
+            external_provider=payload.external_provider,
+            external_id=payload.external_id,
+            external_url=payload.external_url,
+            category=payload.category,
             created_at=now,
             updated_at=now,
         )
@@ -47,6 +51,10 @@ def todo_to_read(todo: Todo) -> TodoRead:
         status=todo.status,
         priority=todo.priority,
         source=todo.source,
+        external_provider=todo.external_provider,
+        external_id=todo.external_id,
+        external_url=todo.external_url,
+        category=todo.category,
         created_at=todo.created_at,
         updated_at=todo.updated_at,
     )

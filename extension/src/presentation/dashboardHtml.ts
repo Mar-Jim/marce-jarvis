@@ -327,7 +327,11 @@ export function renderDashboardHtml(nonce: string, initialState: DashboardState)
             meta.className = "meta";
 
             const priority = document.createElement("span");
-            priority.textContent = todo.priority + " priority";
+            priority.textContent =
+              (todo.external_id ? "#" + todo.external_id + " · " : "") +
+              todo.priority +
+              " · " +
+              todo.category.replace("_", " ");
 
             const status = document.createElement("select");
             status.setAttribute("aria-label", "Todo status");
