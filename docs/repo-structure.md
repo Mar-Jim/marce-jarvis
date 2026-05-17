@@ -96,7 +96,7 @@ Cross-project tests, fixtures, and future end-to-end smoke tests.
 ## Naming Conventions
 
 - Python package: `ai_work_assistant_agent`
-- Extension package: `@ai-work-assistant/extension`
+- Extension package: `ai-work-assistant-extension`
 - Workspace package: `ai-work-assistant`
 - Public API path prefix: `/api/v1`
 - Tool names: lowercase dotted names such as `filesystem.search`, `databricks.bundle.validate`

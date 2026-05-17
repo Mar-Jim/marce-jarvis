@@ -1,0 +1,10 @@
+src/**
+test/**
+*.ts
+tsconfig.json
+.env
+.env.*
+!/.env.example
+dist/test/**
+*.vsix
+node_modules/**

@@ -15,7 +15,14 @@
       "problemMatcher": []
     },
     {
-      "label": "dev:extension",
+      "label": "build:extension",
+      "type": "shell",
+      "command": "corepack pnpm --filter ai-work-assistant-extension build",
+      "group": "build",
+      "problemMatcher": "$tsc"
+    },
+    {
+      "label": "watch:extension",
       "type": "shell",
       "command": "./scripts/dev-extension.sh",
       "isBackground": true,

@@ -19,11 +19,11 @@ repos:
     hooks:
       - id: prettier
         name: prettier
-        entry: pnpm format:check
+        entry: corepack pnpm format:check
         language: system
         pass_filenames: false
       - id: eslint
         name: eslint
-        entry: pnpm lint
+        entry: corepack pnpm lint
         language: system
         pass_filenames: false

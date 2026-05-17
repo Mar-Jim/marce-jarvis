@@ -7,7 +7,7 @@
       "request": "launch",
       "args": ["--extensionDevelopmentPath=${workspaceFolder}/extension"],
       "outFiles": ["${workspaceFolder}/extension/dist/**/*.js"],
-      "preLaunchTask": "dev:extension"
+      "preLaunchTask": "build:extension"
     },
     {
       "name": "Run Agent",

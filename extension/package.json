@@ -1,27 +1,81 @@
 {
-  "name": "@ai-work-assistant/extension",
+  "name": "ai-work-assistant-extension",
   "displayName": "AI Work Assistant",
   "description": "Local-first AI work assistant for VS Code.",
   "version": "0.1.0",
   "private": true,
   "publisher": "local",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mar-Jim/marce-jarvis.git"
+  },
   "engines": {
     "vscode": "^1.92.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onView:aiWorkAssistant.dashboard",
+    "onCommand:assistant.openDashboard",
+    "onCommand:assistant.planMyDay"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "assistant.openDashboard",
+        "title": "Open Dashboard",
+        "category": "Assistant"
+      },
+      {
+        "command": "assistant.planMyDay",
+        "title": "Plan My Day",
+        "category": "Assistant"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "aiWorkAssistant",
+          "title": "AI Work Assistant",
+          "icon": "media/activity-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "aiWorkAssistant": [
+        {
+          "id": "aiWorkAssistant.dashboard",
+          "name": "AI Work Assistant",
+          "type": "webview"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "AI Work Assistant",
+      "properties": {
+        "aiWorkAssistant.backendUrl": {
+          "type": "string",
+          "default": "http://127.0.0.1:8765",
+          "description": "Local AI Work Assistant backend URL."
+        }
+      }
+    }
+  },
   "main": "./dist/extension.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -w -p tsconfig.json",
     "lint": "eslint .",
-    "test": "echo \"No extension tests yet\"",
+    "package": "vsce package --no-dependencies",
+    "pretest": "corepack pnpm build",
+    "test": "node --test dist/test/backendClient.test.js",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "devDependencies": {
-    "@types/node": "^22.7.4",
-    "@types/vscode": "^1.92.0"
+    "@types/node": "^18.19.0",
+    "@types/vscode": "^1.92.0",
+    "@vscode/vsce": "2.32.0"
   }
 }
