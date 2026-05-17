@@ -21,6 +21,14 @@ No AI behavior is implemented yet.
 - `PATCH /todos/{id}`
 - `POST /integrations/azure-devops/sync`
 - `POST /integrations/azure-devops/update-progress`
+- `POST /integrations/outlook/sync-unread`
+- `POST /integrations/outlook/draft-response`
+- `GET /repo/context`
+- `GET /repo/architecture`
+- `GET /repo/deployment-flow`
+- `POST /repo/capabilities`
+- `POST /repo/commands/run`
+- `POST /repo/files/update`
 - `POST /api/v1/chat/turn` placeholder used by the VS Code extension shell
 
 ## Local Startup
@@ -56,6 +64,26 @@ AI_WORK_ASSISTANT_SQLITE_PATH=/path/to/local.sqlite3
 Azure DevOps integration uses a provider abstraction under `integrations/`. The current provider supports Personal Access Token authentication. PATs must be supplied per request in the `X-Azure-DevOps-PAT` header and are not persisted by the backend.
 
 The integration does not hardcode organization or project names. The caller must provide both values.
+
+## Repo Intelligence
+
+Repo intelligence scans the configured local repository root and detects common project types:
+
+- Databricks Asset Bundles via `databricks.yml`
+- Python
+- SQL
+- dashboard-style repos
+- CI/CD repos
+- TypeScript
+
+Supported approved local commands:
+
+- `databricks_bundle_validate`
+- `pytest`
+- `ruff`
+- `mypy`
+
+Command execution and file updates require `X-Approval-Decision: approved`. Without approval, the API returns an approval-required response instead of performing the action.
 
 ## Tests
 

@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     app_version: str = "0.1.0"
     log_level: str = "INFO"
     sqlite_path: Path = Field(default=Path(".local/ai-work-assistant.sqlite3"))
+    repo_root: Path = Field(default=Path.cwd())
 
 
 @lru_cache
