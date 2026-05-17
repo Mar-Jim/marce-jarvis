@@ -41,6 +41,7 @@ class TodoBase(BaseModel):
     external_id: str | None = Field(default=None, max_length=100)
     external_url: str | None = Field(default=None, max_length=2000)
     category: TodoCategory = TodoCategory.normal
+    due_at: datetime | None = None
 
 
 class TodoCreate(TodoBase):
@@ -57,6 +58,7 @@ class TodoPatch(BaseModel):
     external_id: str | None = Field(default=None, max_length=100)
     external_url: str | None = Field(default=None, max_length=2000)
     category: TodoCategory | None = None
+    due_at: datetime | None = None
 
 
 class TodoRead(TodoBase):

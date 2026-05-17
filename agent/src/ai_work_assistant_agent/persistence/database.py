@@ -28,6 +28,7 @@ class Database:
                     external_id TEXT,
                     external_url TEXT,
                     category TEXT NOT NULL DEFAULT 'normal',
+                    due_at TEXT,
                     created_at TEXT NOT NULL,
                     updated_at TEXT NOT NULL,
                     UNIQUE(external_provider, external_id)
@@ -43,6 +44,7 @@ class Database:
                 "category",
                 "TEXT NOT NULL DEFAULT 'normal'",
             )
+            self._add_column_if_missing(connection, "todos", "due_at", "TEXT")
             connection.execute(
                 """
                 CREATE UNIQUE INDEX IF NOT EXISTS idx_todos_external_ref

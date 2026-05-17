@@ -16,5 +16,6 @@ class Todo:
     external_id: str | None
     external_url: str | None
     category: TodoCategory
+    due_at: datetime | None
     created_at: datetime
     updated_at: datetime

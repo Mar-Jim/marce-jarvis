@@ -35,6 +35,7 @@ class WorkItemSyncService:
                 external_id=item.external_id,
                 external_url=item.url,
                 category=item.category,
+                due_at=item.due_at,
                 created_at=now,
                 updated_at=now,
             )

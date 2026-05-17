@@ -20,6 +20,8 @@ This repository is currently in the scaffolding phase. No assistant business log
 - [Recommended Repo Structure](./docs/repo-structure.md)
 - [Initial Scaffolding](./docs/scaffolding.md)
 - [Phased Roadmap](./docs/roadmap.md)
+- [Debug, Test, and Deploy Guide](./docs/debug-test-deploy.html)
+- [Extension Capabilities Tutorial](./docs/extension-capabilities-tutorial.html)
 
 ## Monorepo Layout
 

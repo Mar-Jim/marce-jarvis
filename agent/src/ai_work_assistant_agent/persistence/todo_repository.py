@@ -16,7 +16,7 @@ class TodoRepository:
             rows = connection.execute(
                 """
                 SELECT id, title, description, status, priority, source,
-                       external_provider, external_id, external_url, category,
+                       external_provider, external_id, external_url, category, due_at,
                        created_at, updated_at
                 FROM todos
                 ORDER BY created_at DESC
@@ -31,9 +31,9 @@ class TodoRepository:
                 INSERT INTO todos (
                     id, title, description, status, priority, source,
                     external_provider, external_id, external_url, category,
-                    created_at, updated_at
+                    due_at, created_at, updated_at
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     todo.id,
@@ -46,6 +46,7 @@ class TodoRepository:
                     todo.external_id,
                     todo.external_url,
                     todo.category.value,
+                    todo.due_at.isoformat() if todo.due_at else None,
                     todo.created_at.isoformat(),
                     todo.updated_at.isoformat(),
                 ),
@@ -57,7 +58,7 @@ class TodoRepository:
             row = connection.execute(
                 """
                 SELECT id, title, description, status, priority, source,
-                       external_provider, external_id, external_url, category,
+                       external_provider, external_id, external_url, category, due_at,
                        created_at, updated_at
                 FROM todos
                 WHERE id = ?
@@ -93,6 +94,7 @@ class TodoRepository:
                     source = ?,
                     external_url = ?,
                     category = ?,
+                    due_at = ?,
                     updated_at = ?
                 WHERE id = ?
                 """,
@@ -104,6 +106,7 @@ class TodoRepository:
                     todo.source,
                     todo.external_url,
                     todo.category.value,
+                    todo.due_at.isoformat() if todo.due_at else None,
                     todo.updated_at.isoformat(),
                     row["id"],
                 ),
@@ -148,6 +151,7 @@ def todo_from_row(row: sqlite3.Row) -> Todo:
         external_id=row["external_id"],
         external_url=row["external_url"],
         category=TodoCategory(row["category"]),
+        due_at=datetime.fromisoformat(row["due_at"]) if row["due_at"] else None,
         created_at=datetime.fromisoformat(row["created_at"]),
         updated_at=datetime.fromisoformat(row["updated_at"]),
     )

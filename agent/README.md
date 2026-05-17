@@ -29,6 +29,7 @@ No AI behavior is implemented yet.
 - `POST /repo/capabilities`
 - `POST /repo/commands/run`
 - `POST /repo/files/update`
+- `GET /planner/plan`
 - `POST /api/v1/chat/turn` placeholder used by the VS Code extension shell
 
 ## Local Startup
@@ -84,6 +85,18 @@ Supported approved local commands:
 - `mypy`
 
 Command execution and file updates require `X-Approval-Decision: approved`. Without approval, the API returns an approval-required response instead of performing the action.
+
+## Planner
+
+The planner is deterministic and explainable. It reads local todos generated from manual work, Azure DevOps tickets, Outlook emails, blocked items, overdue work, and repo context. It returns:
+
+- prioritized work list
+- recommended next task
+- estimated effort
+- scoring reasons
+- suggested Azure DevOps ticket updates when applicable
+
+The ranking favors urgent production issues, blockers, overdue work, and already in-progress work to reduce context switching and maximize momentum.
 
 ## Tests
 

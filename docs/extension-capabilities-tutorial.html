@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI Work Assistant - Capabilities Tutorial</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #101418;
+        --panel: #171d24;
+        --panel-2: #202832;
+        --text: #eef2f7;
+        --muted: #aab4c0;
+        --border: #344152;
+        --accent: #7dd3fc;
+        --good: #86efac;
+        --warn: #fde68a;
+        --code: #090d12;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        line-height: 1.58;
+      }
+
+      main {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 34px 20px 60px;
+      }
+
+      header {
+        padding-bottom: 22px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 20px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        line-height: 1.2;
+      }
+
+      h1 {
+        margin: 0 0 10px;
+        font-size: 34px;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        font-size: 23px;
+      }
+
+      h3 {
+        margin: 18px 0 8px;
+        font-size: 17px;
+      }
+
+      p {
+        margin: 0 0 12px;
+      }
+
+      a {
+        color: var(--accent);
+      }
+
+      section,
+      .card {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--panel);
+      }
+
+      section {
+        margin-top: 18px;
+        padding: 18px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 14px;
+      }
+
+      .card {
+        padding: 14px;
+      }
+
+      .subtitle,
+      .muted {
+        color: var(--muted);
+      }
+
+      .pill {
+        display: inline-block;
+        margin-bottom: 10px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 3px 9px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      ul,
+      ol {
+        margin: 8px 0 0;
+        padding-left: 22px;
+      }
+
+      li {
+        margin: 6px 0;
+      }
+
+      code {
+        border-radius: 4px;
+        background: var(--code);
+        padding: 2px 5px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.92em;
+      }
+
+      pre {
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--code);
+        padding: 12px;
+      }
+
+      pre code {
+        background: transparent;
+        padding: 0;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid var(--border);
+        padding: 9px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .note {
+        border-left: 3px solid var(--accent);
+        background: var(--panel-2);
+        padding: 10px 12px;
+      }
+
+      .good {
+        color: var(--good);
+      }
+
+      .warn {
+        color: var(--warn);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <span class="pill">User tutorial</span>
+        <h1>How to Use AI Work Assistant</h1>
+        <p class="subtitle">
+          A guided tour of everything the extension can currently do: local todos, Azure DevOps
+          sync, Outlook email triage, planner output, repo intelligence, and approval-gated actions.
+        </p>
+      </header>
+
+      <div class="grid">
+        <div class="card">
+          <h2>Before You Start</h2>
+          <ul>
+            <li>Start the backend with <code>./scripts/dev-agent.sh</code>.</li>
+            <li>Launch the extension with F5 or install the packaged VSIX.</li>
+            <li>Open the AI Work Assistant icon in the VS Code activity bar.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h2>Safe by Default</h2>
+          <ul>
+            <li>The assistant reads local data and syncs external context only when commanded.</li>
+            <li>File writes require explicit approval.</li>
+            <li>Outlook creates drafts only; it never sends email.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h2>Main Workflow</h2>
+          <ol>
+            <li>Sync tickets and emails.</li>
+            <li>Review generated todos.</li>
+            <li>Run <code>Plan My Day</code>.</li>
+            <li>Work the top item and update status.</li>
+          </ol>
+        </div>
+      </div>
+
+      <section>
+        <h2>1. Open the Assistant Sidebar</h2>
+        <ol>
+          <li>Open VS Code.</li>
+          <li>Start the backend: <code>./scripts/dev-agent.sh</code>.</li>
+          <li>Press F5 to launch the Extension Development Host, or install the VSIX.</li>
+          <li>Click the <strong>AI Work Assistant</strong> activity bar icon.</li>
+        </ol>
+        <p class="note">
+          The sidebar talks to the local FastAPI backend at
+          <code>http://127.0.0.1:8765</code> by default.
+        </p>
+      </section>
+
+      <section>
+        <h2>2. Manage Local Todos</h2>
+        <p>The sidebar includes a todo form and a todo list.</p>
+        <h3>Create a Todo</h3>
+        <ol>
+          <li>Enter a title.</li>
+          <li>Add an optional description.</li>
+          <li>Choose a priority.</li>
+          <li>Click <strong>Add</strong>.</li>
+        </ol>
+        <h3>Update Status</h3>
+        <p>Use the status dropdown on each todo to move it through:</p>
+        <ul>
+          <li><code>pending</code></li>
+          <li><code>in_progress</code></li>
+          <li><code>done</code></li>
+          <li><code>canceled</code></li>
+        </ul>
+        <h3>Refresh</h3>
+        <p>Click <strong>Refresh</strong> to reload todos from SQLite.</p>
+      </section>
+
+      <section>
+        <h2>3. Sync Azure DevOps Tickets</h2>
+        <p>
+          The extension can read assigned Azure DevOps work items and sync them into local todos.
+          Organization and project are settings, not hardcoded.
+        </p>
+        <h3>Configure Settings</h3>
+        <ol>
+          <li>Open VS Code Settings.</li>
+          <li>Search for <code>AI Work Assistant</code>.</li>
+          <li>Set <code>aiWorkAssistant.azureDevOps.organization</code>.</li>
+          <li>Set <code>aiWorkAssistant.azureDevOps.project</code>.</li>
+        </ol>
+        <h3>Run Sync</h3>
+        <pre><code>Command Palette → Assistant: Sync DevOps Tickets</code></pre>
+        <p>
+          The first time, the extension asks for a Personal Access Token. It stores the PAT in VS
+          Code SecretStorage and sends it only to the local backend for that request.
+        </p>
+        <h3>What You Get</h3>
+        <ul>
+          <li>Assigned work items become local todos.</li>
+          <li>Todos are linked to Azure DevOps IDs.</li>
+          <li>Tickets are categorized as blocked, urgent, due soon, in progress, or normal.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>4. Update the Current Azure DevOps Ticket</h2>
+        <p>Use this after you make progress on a linked ticket.</p>
+        <pre><code>Command Palette → Assistant: Update Current Ticket</code></pre>
+        <ol>
+          <li>Select an Azure DevOps-linked todo.</li>
+          <li>Choose the target ticket state.</li>
+          <li>The backend updates Azure DevOps using your stored PAT.</li>
+          <li>The matching local todo status is updated.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>5. Sync Outlook Unread Emails</h2>
+        <p>
+          Outlook integration uses Microsoft Graph. It reads unread inbox messages and generates
+          local todos from actionable emails.
+        </p>
+        <pre><code>Command Palette → Assistant: Sync Outlook Emails</code></pre>
+        <p>The first time, enter a Microsoft Graph access token with appropriate mail permissions.</p>
+        <h3>Email Categories</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Category</th>
+              <th>Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>pipeline_failure</code></td>
+              <td>Build, deployment, release, or pipeline failure detected.</td>
+            </tr>
+            <tr>
+              <td><code>needs_response</code></td>
+              <td>Email likely needs a written reply.</td>
+            </tr>
+            <tr>
+              <td><code>needs_action</code></td>
+              <td>Email asks you to review, approve, or do something.</td>
+            </tr>
+            <tr>
+              <td><code>meeting_context</code></td>
+              <td>Agenda, recap, or meeting-related context.</td>
+            </tr>
+            <tr>
+              <td><code>informational</code></td>
+              <td>Useful but not urgent.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>6. Pipeline Failure Handling</h2>
+        <p>Pipeline failure emails get special treatment.</p>
+        <ul>
+          <li>They become urgent todos.</li>
+          <li>The assistant tries to identify the repo.</li>
+          <li>The assistant tries to identify the pipeline.</li>
+          <li>The todo description includes a recommended next action.</li>
+        </ul>
+        <p>Typical next action:</p>
+        <pre><code>Open the failed pipeline run, inspect the first failing task,
+check recent commits, and verify environment variables.</code></pre>
+      </section>
+
+      <section>
+        <h2>7. Create Outlook Draft Responses</h2>
+        <p>The app can create draft replies, but it never sends email.</p>
+        <pre><code>Command Palette → Assistant: Create Outlook Draft Response</code></pre>
+        <ol>
+          <li>Select an Outlook-linked todo.</li>
+          <li>Enter draft response text.</li>
+          <li>Review the approval prompt.</li>
+          <li>Approve only if you want a draft created in Outlook.</li>
+        </ol>
+        <p class="note">
+          This is an outbound action, so it is approval-gated. The backend requires an approval
+          header before calling Microsoft Graph to create the draft.
+        </p>
+      </section>
+
+      <section>
+        <h2>8. Plan Your Day</h2>
+        <p>The planner reads local todos from tickets, emails, blocked items, overdue work, and repo
+          context.</p>
+        <pre><code>Command Palette → Assistant: Plan My Day</code></pre>
+        <h3>Planner Output</h3>
+        <ul>
+          <li>Prioritized work list.</li>
+          <li>Recommended next task.</li>
+          <li>Estimated effort.</li>
+          <li>Explainable scoring reasons.</li>
+          <li>Suggested Azure DevOps ticket updates.</li>
+        </ul>
+        <h3>Optimization Goals</h3>
+        <ul>
+          <li>Prioritize blockers.</li>
+          <li>Prioritize urgent production issues.</li>
+          <li>Reduce context switching by favoring in-progress work.</li>
+          <li>Maximize momentum with concrete next actions.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>9. Use Repo Intelligence</h2>
+        <p>
+          Repo intelligence scans the configured local repository root. It detects project type,
+          important files, git metadata, deployment hints, and validation commands.
+        </p>
+        <h3>Useful Local API Calls</h3>
+        <pre><code>curl http://127.0.0.1:8765/repo/context
+curl http://127.0.0.1:8765/repo/architecture
+curl http://127.0.0.1:8765/repo/deployment-flow</code></pre>
+        <h3>What It Detects</h3>
+        <ul>
+          <li>Databricks Asset Bundles and <code>databricks.yml</code>.</li>
+          <li>Python projects.</li>
+          <li>SQL files.</li>
+          <li>dashboard-style repos.</li>
+          <li>CI/CD repos.</li>
+          <li>TypeScript projects.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>10. Run Approved Repo Commands</h2>
+        <p>These commands are available through the backend and require explicit approval.</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Command ID</th>
+              <th>Runs</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>databricks_bundle_validate</code></td>
+              <td><code>databricks bundle validate</code></td>
+            </tr>
+            <tr>
+              <td><code>pytest</code></td>
+              <td><code>pytest</code></td>
+            </tr>
+            <tr>
+              <td><code>ruff</code></td>
+              <td><code>ruff check .</code></td>
+            </tr>
+            <tr>
+              <td><code>mypy</code></td>
+              <td><code>mypy .</code></td>
+            </tr>
+          </tbody>
+        </table>
+        <h3>Example</h3>
+        <pre><code>curl -X POST http://127.0.0.1:8765/repo/commands/run \
+  -H "content-type: application/json" \
+  -H "X-Approval-Decision: approved" \
+  -d '{"command": "pytest"}'</code></pre>
+      </section>
+
+      <section>
+        <h2>11. Approval-Gated File Updates</h2>
+        <p>
+          The backend can update files inside the configured repo root, but only with explicit
+          approval. This is the safety boundary for future edit/refactor/code-generation features.
+        </p>
+        <pre><code>curl -X POST http://127.0.0.1:8765/repo/files/update \
+  -H "content-type: application/json" \
+  -H "X-Approval-Decision: approved" \
+  -d '{
+    "relative_path": "notes/example.md",
+    "content": "Approved local file update"
+  }'</code></pre>
+        <p class="note">
+          Paths are constrained to the repository root. Attempts to write outside the repo are
+          rejected.
+        </p>
+      </section>
+
+      <section>
+        <h2>12. What the App Does Not Do Yet</h2>
+        <ul>
+          <li>It does not run a real LLM workflow yet.</li>
+          <li>It does not auto-send email.</li>
+          <li>It does not auto-modify files without approval.</li>
+          <li>It does not deploy Databricks bundles automatically.</li>
+          <li>It does not hardcode your organization, project, or repo names.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>13. Suggested Daily Workflow</h2>
+        <ol>
+          <li>Start backend: <code>./scripts/dev-agent.sh</code>.</li>
+          <li>Open VS Code assistant sidebar.</li>
+          <li>Run <strong>Assistant: Sync DevOps Tickets</strong>.</li>
+          <li>Run <strong>Assistant: Sync Outlook Emails</strong>.</li>
+          <li>Review generated todos.</li>
+          <li>Run <strong>Assistant: Plan My Day</strong>.</li>
+          <li>Work the recommended next task.</li>
+          <li>Update the linked ticket when progress changes.</li>
+          <li>Run approved repo validation commands before committing.</li>
+        </ol>
+      </section>
+    </main>
+  </body>
+</html>

@@ -38,6 +38,7 @@ class EmailSyncService:
                 external_id=email.external_id,
                 external_url=email.web_url,
                 category=email.category,
+                due_at=None,
                 created_at=now,
                 updated_at=now,
             )
