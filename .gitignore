@@ -1,0 +1,54 @@
+# Operating system
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+.env.*
+!.env.example
+!agent/.env.example
+!extension/.env.example
+
+# Logs
+*.log
+logs/
+
+# Node / TypeScript
+node_modules/
+dist/
+out/
+coverage/
+*.tsbuildinfo
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pyright/
+.venv/
+venv/
+build/
+*.egg-info/
+
+# Local app state
+*.sqlite
+*.sqlite3
+*.db
+.local/
+.data/
+
+# VS Code extension packaging
+*.vsix
+
+# Secrets and credentials
+*.pem
+*.key
+*.p12
+*.pfx

@@ -1,8 +1,8 @@
-# Marce Jarvis
+# AI Work Assistant
 
-Local-first AI assistant for VS Code, designed for data engineering and data analysis workflows involving Databricks, Python, SQL, Azure DevOps, email, and Databricks Asset Bundles.
+Enterprise-grade local AI assistant for VS Code, designed for data engineering and data analysis workflows involving Databricks, Python, SQL, Azure DevOps, email, and Databricks Asset Bundles.
 
-This repository is currently in the planning and scaffolding phase. No product features are implemented yet.
+This repository is currently in the scaffolding phase. No assistant business logic is implemented yet.
 
 ## Goals
 
@@ -21,8 +21,39 @@ This repository is currently in the planning and scaffolding phase. No product f
 - [Initial Scaffolding](./docs/scaffolding.md)
 - [Phased Roadmap](./docs/roadmap.md)
 
+## Monorepo Layout
+
+```text
+ai-work-assistant/
+  extension/          VS Code extension frontend
+  agent/              Python FastAPI backend
+  packages/shared/    Shared TypeScript contracts and utilities
+  docs/               Architecture and planning docs
+  scripts/            Local development scripts
+  tests/              Cross-project tests and fixtures
+```
+
+## Local Tooling
+
+- TypeScript workspace: `pnpm`
+- Python dependency management: `uv`
+- Python linting/formatting: `ruff`
+- TypeScript linting/formatting: `eslint` and `prettier`
+- Git hooks: `pre-commit`
+
+## Development Commands
+
+```bash
+./scripts/bootstrap.sh
+./scripts/dev-agent.sh
+./scripts/dev-extension.sh
+./scripts/lint.sh
+./scripts/format.sh
+./scripts/test.sh
+```
+
 ## Current Status
 
-Documentation-only scaffold.
+Repository scaffold.
 
-Implementation should start with the repository skeleton, local development workflow, and backend/extension contracts before any assistant capabilities are added.
+Implementation should start with backend/extension contracts and approval-gated infrastructure before any assistant capabilities are added.

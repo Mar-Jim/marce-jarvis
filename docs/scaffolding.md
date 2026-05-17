@@ -18,22 +18,16 @@ The scaffold should prove:
 
 ## Backend Scaffold
 
-Create `apps/backend` with:
+Create `agent` with:
 
 - `pyproject.toml`
-- `src/marce_jarvis/main.py`
-- `src/marce_jarvis/api/app.py`
-- `src/marce_jarvis/api/routers/health.py`
-- `src/marce_jarvis/core/config.py`
-- `src/marce_jarvis/persistence/database.py`
-- `tests/test_health.py`
+- `src/ai_work_assistant_agent/main.py`
+- `tests/README.md`
 
 Initial backend behavior:
 
 - Start FastAPI locally.
-- Expose `GET /health`.
-- Expose `GET /version`.
-- Initialize SQLite connection.
+- Keep route, persistence, assistant, model, and tool behavior out until implementation begins.
 - Avoid assistant, model, and tool features.
 
 Recommended backend dependencies:
@@ -51,23 +45,17 @@ Recommended backend dependencies:
 
 ## VS Code Extension Scaffold
 
-Create `apps/vscode-extension` with:
+Create `extension` with:
 
 - `package.json`
 - `tsconfig.json`
 - `src/extension.ts`
-- `src/backend/client.ts`
-- `src/backend/lifecycle.ts`
-- `src/commands/openAssistant.ts`
-- `src/webview`
 - `test`
 
 Initial extension behavior:
 
-- Register assistant command.
-- Show basic assistant webview shell.
-- Start or connect to the local backend.
-- Show backend health status.
+- Compile as a VS Code extension.
+- Keep commands, webviews, backend lifecycle, and chat UI out until implementation begins.
 - Avoid assistant chat and tool execution features.
 
 Recommended extension dependencies:
@@ -80,11 +68,11 @@ Recommended extension dependencies:
 
 ## Contracts Scaffold
 
-Create `packages/contracts` with:
+Create `packages/shared` with:
 
-- OpenAPI export location.
-- TypeScript API type generation target.
-- Contract test placeholders.
+- TypeScript package metadata.
+- Strict TypeScript config.
+- Empty public export.
 
 Initial contract rules:
 

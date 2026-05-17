@@ -1,0 +1,7 @@
+{
+  "editor.formatOnSave": true,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "python.defaultInterpreterPath": "${workspaceFolder}/agent/.venv/bin/python",
+  "python.analysis.typeCheckingMode": "strict",
+  "ruff.nativeServer": "on"
+}

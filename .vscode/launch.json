@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run VS Code Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}/extension"],
+      "outFiles": ["${workspaceFolder}/extension/dist/**/*.js"],
+      "preLaunchTask": "dev:extension"
+    },
+    {
+      "name": "Run Agent",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "uvicorn",
+      "args": [
+        "ai_work_assistant_agent.main:app",
+        "--host",
+        "127.0.0.1",
+        "--port",
+        "8765",
+        "--reload"
+      ],
+      "cwd": "${workspaceFolder}/agent",
+      "envFile": "${workspaceFolder}/agent/.env"
+    }
+  ]
+}

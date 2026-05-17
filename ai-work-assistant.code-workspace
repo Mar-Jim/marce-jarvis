@@ -1,0 +1,22 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "python.defaultInterpreterPath": "${workspaceFolder}/agent/.venv/bin/python",
+    "python.analysis.typeCheckingMode": "strict"
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "charliermarsh.ruff",
+      "ms-python.python",
+      "ms-python.vscode-pylance"
+    ]
+  }
+}

@@ -1,108 +1,77 @@
 # Recommended Repo Structure
 
-The repository should use a monorepo layout so the VS Code extension, Python backend, shared contracts, documentation, and tests evolve together.
+The repository uses a monorepo layout so the VS Code extension, Python agent, shared contracts, documentation, and tests evolve together.
 
 ```text
-marce-jarvis/
+ai-work-assistant/
   README.md
+  package.json
+  pnpm-workspace.yaml
+  tsconfig.base.json
+  eslint.config.mjs
+  .prettierrc.json
+  .pre-commit-config.yaml
+  .env.example
+  ai-work-assistant.code-workspace
+
+  extension/
+    README.md
+    package.json
+    tsconfig.json
+    src/
+      extension.ts
+
+  agent/
+    README.md
+    pyproject.toml
+    src/
+      ai_work_assistant_agent/
+        __init__.py
+        main.py
+    tests/
+
+  packages/
+    shared/
+      README.md
+      package.json
+      tsconfig.json
+      src/
+        index.ts
+
   docs/
+    README.md
     architecture.md
     repo-structure.md
     scaffolding.md
     roadmap.md
 
-  apps/
-    vscode-extension/
-      package.json
-      tsconfig.json
-      src/
-        extension.ts
-        backend/
-          client.ts
-          lifecycle.ts
-        webview/
-          main.tsx
-          components/
-        commands/
-        types/
-      test/
-
-    backend/
-      pyproject.toml
-      src/
-        marce_jarvis/
-          __init__.py
-          main.py
-          api/
-            app.py
-            routers/
-          core/
-            config.py
-            logging.py
-            security.py
-          domain/
-            approvals.py
-            conversations.py
-            tools.py
-          services/
-            assistant_service.py
-            approval_service.py
-            tool_service.py
-          persistence/
-            database.py
-            migrations/
-            repositories/
-          tools/
-            registry.py
-            base.py
-            filesystem/
-            databricks/
-            azure_devops/
-            email/
-            python/
-            sql/
-          providers/
-            base.py
-            local_model.py
-      tests/
-
-  packages/
-    contracts/
-      openapi/
-      schemas/
-      generated/
-
   scripts/
     bootstrap.sh
-    dev-backend.sh
+    dev-agent.sh
     dev-extension.sh
     package-extension.sh
-
-  .github/
-    workflows/
-      ci.yml
 
   .vscode/
     launch.json
     tasks.json
 
-  .gitignore
-  Makefile
+  tests/
+    README.md
 ```
 
 ## Directory Responsibilities
 
-`apps/vscode-extension`
+`extension`
 
 The VS Code extension frontend. It owns the activity bar view, webview UI, command palette entries, backend lifecycle, and calls into the local backend API.
 
-`apps/backend`
+`agent`
 
 The FastAPI backend. It owns assistant orchestration, tool execution, approval policy, SQLite persistence, and integration adapters.
 
-`packages/contracts`
+`packages/shared`
 
-Shared API contracts. This can hold OpenAPI exports, generated TypeScript clients, generated Python schemas if needed, and compatibility tests.
+Shared TypeScript contracts. This can hold generated API clients, shared TypeScript types, and compatibility tests.
 
 `docs`
 
@@ -120,10 +89,15 @@ CI definitions for linting, type checks, tests, and packaging validation.
 
 Checked-in VS Code launch and task configuration for local development.
 
+`tests`
+
+Cross-project tests, fixtures, and future end-to-end smoke tests.
+
 ## Naming Conventions
 
-- Python package: `marce_jarvis`
-- Extension package: `marce-jarvis`
+- Python package: `ai_work_assistant_agent`
+- Extension package: `@ai-work-assistant/extension`
+- Workspace package: `ai-work-assistant`
 - Public API path prefix: `/api/v1`
 - Tool names: lowercase dotted names such as `filesystem.search`, `databricks.bundle.validate`
 - Database migrations: timestamped and descriptive
@@ -131,7 +105,7 @@ Checked-in VS Code launch and task configuration for local development.
 ## Design Constraints For The Structure
 
 - Keep extension and backend deployable independently during development.
-- Keep generated files under `packages/contracts/generated`.
+- Keep generated shared files under `packages/shared/generated` once contract generation exists.
 - Keep tests next to the app they validate.
 - Keep tool implementations isolated by domain.
 - Keep docs separate from implementation until feature work starts.

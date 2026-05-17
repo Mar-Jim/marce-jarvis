@@ -2,7 +2,7 @@
 
 ## Product Shape
 
-Marce Jarvis is a local AI assistant that runs inside VS Code and supports a data engineer/data analyst workflow. The assistant is built as a VS Code extension backed by a local Python service. It is local-first, requires no hosted backend, and persists user data in SQLite.
+AI Work Assistant is a local AI assistant that runs inside VS Code and supports a data engineer/data analyst workflow. The assistant is built as a VS Code extension backed by a local Python service. It is local-first, requires no hosted backend, and persists user data in SQLite.
 
 The system should optimize for:
 
