@@ -2,7 +2,9 @@ import * as crypto from "node:crypto";
 import type * as vscode from "vscode";
 
 import type { ChatMessage, DashboardState } from "../domain/chat";
+import type { CreateTodoInput, Todo, TodoStatus } from "../domain/todos";
 import type { BackendClient } from "../infrastructure/backendClient";
+import type { TodoService } from "../services/todoService";
 import { renderDashboardHtml } from "./dashboardHtml";
 
 type WebviewInboundMessage =
@@ -12,6 +14,18 @@ type WebviewInboundMessage =
   | {
       readonly type: "sendMessage";
       readonly text: string;
+    }
+  | {
+      readonly type: "refreshTodos";
+    }
+  | {
+      readonly type: "createTodo";
+      readonly input: CreateTodoInput;
+    }
+  | {
+      readonly type: "updateTodoStatus";
+      readonly todoId: string;
+      readonly status: TodoStatus;
     };
 
 type WebviewOutboundMessage = {
@@ -34,11 +48,18 @@ export class AssistantDashboardProvider implements vscode.WebviewViewProvider {
         "Local assistant shell is ready. AI features are not implemented yet.",
       ),
     ],
+    todos: {
+      items: [],
+      isLoading: false,
+      isSaving: false,
+      error: undefined,
+    },
   };
 
   public constructor(
     private readonly extensionUri: vscode.Uri,
     private readonly backendClient: BackendClient,
+    private readonly todoService: TodoService,
   ) {}
 
   public resolveWebviewView(webviewView: vscode.WebviewView): void {
@@ -65,10 +86,20 @@ export class AssistantDashboardProvider implements vscode.WebviewViewProvider {
     switch (message.type) {
       case "ready":
         await this.refreshBackendStatus();
+        await this.loadTodos();
         break;
       case "sendMessage":
         await this.appendUserMessage(message.text);
         await this.trySendToBackend(message.text);
+        break;
+      case "refreshTodos":
+        await this.loadTodos();
+        break;
+      case "createTodo":
+        await this.createTodo(message.input);
+        break;
+      case "updateTodoStatus":
+        await this.updateTodoStatus(message.todoId, message.status);
         break;
     }
   }
@@ -100,6 +131,116 @@ export class AssistantDashboardProvider implements vscode.WebviewViewProvider {
     await this.appendAssistantMessage(
       "Chat orchestration is not implemented yet. The extension is connected to the local REST client shell.",
     );
+  }
+
+  private async loadTodos(): Promise<void> {
+    this.state = {
+      ...this.state,
+      todos: {
+        ...this.state.todos,
+        isLoading: true,
+        error: undefined,
+      },
+    };
+    await this.postState();
+
+    const result = await this.todoService.listTodos();
+    if (!result.ok || !result.data) {
+      this.state = {
+        ...this.state,
+        todos: {
+          ...this.state.todos,
+          isLoading: false,
+          error: result.error ?? "Unable to load todos",
+        },
+      };
+      await this.postState();
+      return;
+    }
+
+    this.state = {
+      ...this.state,
+      todos: {
+        items: result.data,
+        isLoading: false,
+        isSaving: false,
+        error: undefined,
+      },
+    };
+    await this.postState();
+  }
+
+  private async createTodo(input: CreateTodoInput): Promise<void> {
+    this.state = {
+      ...this.state,
+      todos: {
+        ...this.state.todos,
+        isSaving: true,
+        error: undefined,
+      },
+    };
+    await this.postState();
+
+    const result = await this.todoService.createTodo(input);
+    if (!result.ok || !result.data) {
+      this.state = {
+        ...this.state,
+        todos: {
+          ...this.state.todos,
+          isSaving: false,
+          error: result.error ?? "Unable to create todo",
+        },
+      };
+      await this.postState();
+      return;
+    }
+
+    this.state = {
+      ...this.state,
+      todos: {
+        items: [result.data, ...this.state.todos.items],
+        isLoading: false,
+        isSaving: false,
+        error: undefined,
+      },
+    };
+    await this.postState();
+  }
+
+  private async updateTodoStatus(todoId: string, status: TodoStatus): Promise<void> {
+    this.state = {
+      ...this.state,
+      todos: {
+        ...this.state.todos,
+        isSaving: true,
+        error: undefined,
+      },
+    };
+    await this.postState();
+
+    const result = await this.todoService.updateStatus(todoId, status);
+    if (!result.ok || !result.data) {
+      this.state = {
+        ...this.state,
+        todos: {
+          ...this.state.todos,
+          isSaving: false,
+          error: result.error ?? "Unable to update todo",
+        },
+      };
+      await this.postState();
+      return;
+    }
+
+    this.state = {
+      ...this.state,
+      todos: {
+        ...this.state.todos,
+        items: replaceTodo(this.state.todos.items, result.data),
+        isSaving: false,
+      },
+    };
+    await this.postState();
   }
 
   private async appendUserMessage(content: string): Promise<void> {
@@ -138,4 +279,8 @@ function createMessage(role: ChatMessage["role"], content: string): ChatMessage 
 
 function createNonce(): string {
   return crypto.randomBytes(16).toString("base64");
+}
+
+function replaceTodo(todos: readonly Todo[], updatedTodo: Todo): readonly Todo[] {
+  return todos.map((todo) => (todo.id === updatedTodo.id ? updatedTodo : todo));
 }

@@ -1,3 +1,5 @@
+import type { TodosState } from "./todos";
+
 export type ChatRole = "user" | "assistant" | "system";
 
 export interface ChatMessage {
@@ -10,6 +12,7 @@ export interface ChatMessage {
 export interface DashboardState {
   readonly backend: BackendStatus;
   readonly messages: readonly ChatMessage[];
+  readonly todos: TodosState;
 }
 
 export interface BackendStatus {

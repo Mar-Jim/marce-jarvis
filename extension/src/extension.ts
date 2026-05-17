@@ -3,10 +3,16 @@ import * as vscode from "vscode";
 import { BackendClient } from "./infrastructure/backendClient";
 import { registerAssistantCommands } from "./presentation/commands";
 import { AssistantDashboardProvider } from "./presentation/dashboardProvider";
+import { TodoService } from "./services/todoService";
 
 export function activate(context: vscode.ExtensionContext): void {
   const backendClient = new BackendClient(() => getBackendUrl());
-  const dashboardProvider = new AssistantDashboardProvider(context.extensionUri, backendClient);
+  const todoService = new TodoService(backendClient);
+  const dashboardProvider = new AssistantDashboardProvider(
+    context.extensionUri,
+    backendClient,
+    todoService,
+  );
 
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
