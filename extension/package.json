@@ -21,6 +21,8 @@
     "onCommand:assistant.openDashboard",
     "onCommand:assistant.syncDevOpsTickets",
     "onCommand:assistant.updateCurrentTicket",
+    "onCommand:assistant.syncOutlookEmails",
+    "onCommand:assistant.createOutlookDraftResponse",
     "onCommand:assistant.planMyDay"
   ],
   "contributes": {
@@ -38,6 +40,16 @@
       {
         "command": "assistant.updateCurrentTicket",
         "title": "Update Current Ticket",
+        "category": "Assistant"
+      },
+      {
+        "command": "assistant.syncOutlookEmails",
+        "title": "Sync Outlook Emails",
+        "category": "Assistant"
+      },
+      {
+        "command": "assistant.createOutlookDraftResponse",
+        "title": "Create Outlook Draft Response",
         "category": "Assistant"
       },
       {

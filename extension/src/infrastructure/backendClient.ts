@@ -19,6 +19,24 @@ export interface AzureDevOpsUpdateResponse {
   readonly updated: boolean;
 }
 
+export interface OutlookSyncResponse {
+  readonly synced_count: number;
+  readonly todos: readonly Todo[];
+}
+
+export interface OutlookDraftRequest {
+  readonly message_id: string;
+  readonly comment: string;
+}
+
+export interface OutlookDraftResponse {
+  readonly draft_id?: string;
+  readonly web_url?: string | null;
+  readonly approval_required?: true;
+  readonly action?: string;
+  readonly risk?: string;
+}
+
 export interface HealthResponse {
   readonly status?: string;
   readonly version?: string;
@@ -103,6 +121,32 @@ export class BackendClient {
     );
   }
 
+  public async syncOutlookEmails(
+    graphToken: string,
+    limit = 25,
+  ): Promise<BackendClientResult<OutlookSyncResponse>> {
+    return this.postJson<{ readonly limit: number }, OutlookSyncResponse>(
+      "/integrations/outlook/sync-unread",
+      { limit },
+      microsoftGraphAuthHeaders(graphToken),
+    );
+  }
+
+  public async createOutlookDraftResponse(
+    input: OutlookDraftRequest,
+    graphToken: string,
+    approved: boolean,
+  ): Promise<BackendClientResult<OutlookDraftResponse>> {
+    return this.postJson<OutlookDraftRequest, OutlookDraftResponse>(
+      "/integrations/outlook/draft-response",
+      input,
+      {
+        ...microsoftGraphAuthHeaders(graphToken),
+        "X-Approval-Decision": approved ? "approved" : "requested",
+      },
+    );
+  }
+
   private async getJson<TResponse>(path: string): Promise<BackendClientResult<TResponse>> {
     return this.requestJson<TResponse>(path, {
       method: "GET",
@@ -175,6 +219,12 @@ export class BackendClient {
 function azureDevOpsAuthHeaders(pat: string): Record<string, string> {
   return {
     "X-Azure-DevOps-PAT": pat,
+  };
+}
+
+function microsoftGraphAuthHeaders(token: string): Record<string, string> {
+  return {
+    "X-Microsoft-Graph-Token": token,
   };
 }
 

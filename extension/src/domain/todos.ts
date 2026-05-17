@@ -11,7 +11,17 @@ export interface Todo {
   readonly external_provider: string | null;
   readonly external_id: string | null;
   readonly external_url: string | null;
-  readonly category: "blocked" | "in_progress" | "urgent" | "due_soon" | "normal";
+  readonly category:
+    | "blocked"
+    | "in_progress"
+    | "urgent"
+    | "due_soon"
+    | "pipeline_failure"
+    | "needs_response"
+    | "needs_action"
+    | "informational"
+    | "meeting_context"
+    | "normal";
   readonly created_at: string;
   readonly updated_at: string;
 }

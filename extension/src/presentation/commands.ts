@@ -17,6 +17,14 @@ export function registerAssistantCommands(
       await vscode.commands.executeCommand(`${AssistantDashboardProvider.viewType}.focus`);
       await dashboardProvider.updateCurrentTicket();
     }),
+    vscode.commands.registerCommand("assistant.syncOutlookEmails", async () => {
+      await vscode.commands.executeCommand(`${AssistantDashboardProvider.viewType}.focus`);
+      await dashboardProvider.syncOutlookEmails();
+    }),
+    vscode.commands.registerCommand("assistant.createOutlookDraftResponse", async () => {
+      await vscode.commands.executeCommand(`${AssistantDashboardProvider.viewType}.focus`);
+      await dashboardProvider.createOutlookDraftResponse();
+    }),
     vscode.commands.registerCommand("assistant.planMyDay", async () => {
       await vscode.commands.executeCommand(`${AssistantDashboardProvider.viewType}.focus`);
       await dashboardProvider.planMyDay();

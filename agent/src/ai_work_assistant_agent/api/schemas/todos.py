@@ -23,6 +23,11 @@ class TodoCategory(StrEnum):
     in_progress = "in_progress"
     urgent = "urgent"
     due_soon = "due_soon"
+    pipeline_failure = "pipeline_failure"
+    needs_response = "needs_response"
+    needs_action = "needs_action"
+    informational = "informational"
+    meeting_context = "meeting_context"
     normal = "normal"
 
 

@@ -5,6 +5,7 @@ import type { ChatMessage, DashboardState } from "../domain/chat";
 import type { CreateTodoInput, Todo, TodoStatus } from "../domain/todos";
 import type { BackendClient } from "../infrastructure/backendClient";
 import type { AzureDevOpsService } from "../services/azureDevOpsService";
+import type { OutlookService } from "../services/outlookService";
 import type { TodoService } from "../services/todoService";
 import { renderDashboardHtml } from "./dashboardHtml";
 
@@ -62,6 +63,7 @@ export class AssistantDashboardProvider implements vscode.WebviewViewProvider {
     private readonly backendClient: BackendClient,
     private readonly todoService: TodoService,
     private readonly azureDevOpsService: AzureDevOpsService,
+    private readonly outlookService: OutlookService,
   ) {}
 
   public resolveWebviewView(webviewView: vscode.WebviewView): void {
@@ -117,6 +119,80 @@ export class AssistantDashboardProvider implements vscode.WebviewViewProvider {
     await this.appendAssistantMessage(
       `Synced ${result.data?.synced_count ?? 0} Azure DevOps ticket(s).`,
     );
+  }
+
+  public async syncOutlookEmails(): Promise<void> {
+    this.state = {
+      ...this.state,
+      todos: {
+        ...this.state.todos,
+        isLoading: true,
+        error: undefined,
+      },
+    };
+    await this.postState();
+
+    const result = await this.outlookService.syncUnreadEmails();
+    if (!result.ok) {
+      this.state = {
+        ...this.state,
+        todos: {
+          ...this.state.todos,
+          isLoading: false,
+          error: result.error ?? "Unable to sync Outlook emails",
+        },
+      };
+      await this.postState();
+      return;
+    }
+
+    await this.loadTodos();
+    await this.appendAssistantMessage(`Synced ${result.data?.synced_count ?? 0} unread email(s).`);
+  }
+
+  public async createOutlookDraftResponse(): Promise<void> {
+    const emailTodos = this.state.todos.items.filter(
+      (todo) => todo.external_provider === "outlook" && todo.external_id,
+    );
+    const selected = await vscode.window.showQuickPick(
+      emailTodos.map((todo) => ({
+        label: todo.title,
+        description: todo.category,
+        todo,
+      })),
+      {
+        placeHolder: "Select an Outlook-linked todo",
+      },
+    );
+    if (!selected?.todo.external_id) {
+      return;
+    }
+
+    const comment = await vscode.window.showInputBox({
+      prompt: "Draft response text",
+      ignoreFocusOut: true,
+    });
+    if (!comment) {
+      return;
+    }
+
+    const result = await this.outlookService.createDraftResponse(
+      selected.todo.external_id,
+      comment,
+    );
+    if (!result.ok) {
+      this.state = {
+        ...this.state,
+        todos: {
+          ...this.state.todos,
+          error: result.error ?? "Unable to create Outlook draft",
+        },
+      };
+      await this.postState();
+      return;
+    }
+
+    await this.appendAssistantMessage("Created Outlook draft response. No email was sent.");
   }
 
   public async updateCurrentTicket(): Promise<void> {

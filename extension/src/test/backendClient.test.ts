@@ -208,6 +208,55 @@ describe("BackendClient", () => {
     });
   });
 
+  it("syncs Outlook unread emails with Graph token header", async () => {
+    globalThis.fetch = async (input: string | URL | Request, init?: RequestInit) => {
+      requests.push({ url: input.toString(), init });
+      return jsonResponse({
+        synced_count: 1,
+        todos: [],
+      });
+    };
+    const client = new BackendClient(() => "http://127.0.0.1:8765");
+
+    const result = await client.syncOutlookEmails("graph-token", 10);
+
+    assert.equal(result.ok, true);
+    assert.equal(
+      requests[0]?.url,
+      "http://127.0.0.1:8765/integrations/outlook/sync-unread",
+    );
+    assert.equal(getHeader(requests[0]?.init?.headers, "X-Microsoft-Graph-Token"), "graph-token");
+    assert.deepEqual(JSON.parse(requests[0]?.init?.body?.toString() ?? "{}"), {
+      limit: 10,
+    });
+  });
+
+  it("creates Outlook draft responses only with approval header", async () => {
+    globalThis.fetch = async (input: string | URL | Request, init?: RequestInit) => {
+      requests.push({ url: input.toString(), init });
+      return jsonResponse({ draft_id: "draft-1", web_url: null });
+    };
+    const client = new BackendClient(() => "http://127.0.0.1:8765");
+
+    const result = await client.createOutlookDraftResponse(
+      { message_id: "msg-1", comment: "Thanks" },
+      "graph-token",
+      true,
+    );
+
+    assert.equal(result.ok, true);
+    assert.equal(
+      requests[0]?.url,
+      "http://127.0.0.1:8765/integrations/outlook/draft-response",
+    );
+    assert.equal(getHeader(requests[0]?.init?.headers, "X-Microsoft-Graph-Token"), "graph-token");
+    assert.equal(getHeader(requests[0]?.init?.headers, "X-Approval-Decision"), "approved");
+    assert.deepEqual(JSON.parse(requests[0]?.init?.body?.toString() ?? "{}"), {
+      message_id: "msg-1",
+      comment: "Thanks",
+    });
+  });
+
   it("retries transient backend failures", async () => {
     let attempt = 0;
     globalThis.fetch = async (input: string | URL | Request, init?: RequestInit) => {
